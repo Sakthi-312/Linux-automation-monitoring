@@ -16,6 +16,7 @@ run() {
 
 dir_bytes() { du -sb "$1" | cut -f1; }
 
+declare -A gone=()
 deleted=0
 compressed=0
 freed=0
@@ -41,11 +42,13 @@ for dir in $CLEANUP_DIRS; do
   # 1. Delete logs and archives older than the retention period
   while IFS= read -r -d '' f; do
     run rm -f -- "$f"
+    gone["$f"]=1
     deleted=$((deleted + 1))
   done < <(find "$dir" -maxdepth 1 -type f \( -name '*.log' -o -name '*.gz' \) -mtime +"$LOG_RETENTION_DAYS" -print0)
 
   # 2. Compress remaining .log files older than the compress threshold
   while IFS= read -r -d '' f; do
+    if [ -n "${gone[$f]:-}" ]; then continue; fi
     run gzip -f -- "$f"
     compressed=$((compressed + 1))
   done < <(find "$dir" -maxdepth 1 -type f -name '*.log' -mtime +"$COMPRESS_AFTER_DAYS" -print0)
