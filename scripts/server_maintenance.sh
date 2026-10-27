@@ -55,7 +55,7 @@ if [ "${#files[@]}" -gt 0 ]; then
   run mkdir -p "$BACKUP_DIR"
   archive="$BACKUP_DIR/config-$(date +%F_%H%M%S).tar.gz"
   run tar -czf "$archive" "${files[@]}" 2>/dev/null
-  log INFO "Backup created: $archive (${#files[@]} files)"
+  if [ "$DRY_RUN" = "1" ]; then log INFO "Backup would be created: $archive (${#files[@]} files)"; else log INFO "Backup created: $archive (${#files[@]} files)"; fi
   # keep only the newest N backups
   while IFS= read -r old; do
     run rm -f -- "$old"
