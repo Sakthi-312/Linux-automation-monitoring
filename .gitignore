@@ -3,3 +3,5 @@ logs/
 .env
 sandbox/
 backups/
+reports/
+config/.env
