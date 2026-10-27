@@ -8,3 +8,13 @@ log() {
   local level="$1"; shift
   echo "$(date '+%F %T') [$level] $*" | tee -a "$LOG_DIR/automation.log"
 }
+
+# Dry-run helper: prints the command instead of running it when DRY_RUN=1
+DRY_RUN="${DRY_RUN:-0}"
+run() {
+  if [ "$DRY_RUN" = "1" ]; then
+    log DRY "would run: $*"
+  else
+    "$@"
+  fi
+}
