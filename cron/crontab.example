@@ -1,0 +1,11 @@
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+# Health check every 5 minutes (alerts only on problems)
+*/5 * * * * flock -n /tmp/la-health.lock /home/pc/linux-automation-monitoring/scripts/cron_health.sh >> /home/pc/linux-automation-monitoring/logs/cron.log 2>&1
+
+# Full run (health, log cleanup, maintenance, report) daily at 02:00
+0 2 * * * flock -n /tmp/la-full.lock /home/pc/linux-automation-monitoring/scripts/run_all.sh >> /home/pc/linux-automation-monitoring/logs/cron.log 2>&1
+
+# Rotate this project's logs daily at 02:30
+30 2 * * * /usr/sbin/logrotate -s /home/pc/linux-automation-monitoring/logs/.logrotate.state /home/pc/linux-automation-monitoring/config/logrotate.conf >> /home/pc/linux-automation-monitoring/logs/cron.log 2>&1
