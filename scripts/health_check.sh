@@ -19,7 +19,7 @@ cpu_usage() {
 mem_usage() { free | awk '/^Mem:/ {printf "%d", ($2-$7)*100/$2}'; }
 
 # Disk usage of the root filesystem
-disk_usage() { df -P / | awk 'NR==2 {gsub("%","",$5); print $5}'; }
+disk_usage() { df -P "$1" | awk 'NR==2 {gsub("%","",$5); print $5}'; }
 
 check() {   # check <name> <value> <threshold>
   local name="$1" value="$2" limit="$3"
@@ -34,7 +34,9 @@ check() {   # check <name> <value> <threshold>
 log INFO "===== Health check on $(hostname) ====="
 check "CPU"    "$(cpu_usage)"  "$CPU_THRESHOLD"
 check "Memory" "$(mem_usage)"  "$MEM_THRESHOLD"
-check "Disk /" "$(disk_usage)" "$DISK_THRESHOLD"
+for p in $DISK_PATHS; do
+  check "Disk $p" "$(disk_usage "$p")" "$DISK_THRESHOLD"
+done
 
 # Load average compared with the number of CPU cores
 load=$(cut -d' ' -f1 /proc/loadavg)
